@@ -6,32 +6,14 @@ import matplotlib as plt
 import numpy as np
 from PIL import Image
 
-# TODO make it so that the pixel divisions can be inputted by user (ie not just 9, but whatever as long as it's less than the image size)
-
-
-def lowerImgQuality(imgPath):
-    im = Image.open(imgPath)
-    originalPixelAr = np.asarray(im)
-    im.show()
-
-    #resize the img to be a good multiple
-    im = resizeImg(im)
-
-    #make the new image using the old image pixel array for size, and the new array for content
-    newIm = constructNewIm(originalPixelAr, getNewPixelAr(im))
-
-    newIm.show()
-
-
 #make the image be divisible by some user-inputted number
-# TODO all size to be resizable from 9 to whatever
-def resizeImg(inputIm):
+def resizeImg(inputIm, num):
     imAr = np.asarray(inputIm)
     width = imAr.shape[1]
     height = imAr.shape[0]
-    while width % 9 != 0:
+    while width % num != 0:
         width += 1
-    while height % 9 != 0:
+    while height % num != 0:
         height += 1
     finalIm = inputIm.resize((width, height))
     return finalIm
@@ -46,35 +28,35 @@ def getAvgRGB(inputSquare):
         g += pixel[1]
         b += pixel[2]
     # divide r g b by the number of pixels in the square - should be division number squared
-    r = int(r / 81)
-    g = int(g / 81)
-    b = int(b / 81)
+    r = int(r / len(inputSquare))
+    g = int(g / len(inputSquare))
+    b = int(b / len(inputSquare))
     return (r, g, b)
 
 # create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of indexes
-def createSquareList(imAr):
+def createSquareList(imAr, num):
     squareList = []
-    for i in range(0, int(imAr.shape[0] / 9)):
+    for i in range(0, int(imAr.shape[0] / num)):
         squareList.append([])
-        for j in range(0, int(imAr.shape[1] / 9)):
+        for j in range(0, int(imAr.shape[1] / num)):
             squareList[i].append([])
     return squareList
 
 
 # traverses the image in standard format, skipping every 9. for each (x, y) stop the outer two 4 loops make we examine the smaller 9x9 square consisting of (x -> x + 8, y -> y + 8)
 # and find the average rgb value. Then push that average into the approximated pixel square list
-def getNewPixelAr(im):
+def getNewPixelAr(im, num):
     imAr = np.asarray(im)
-    squareList = createSquareList(imAr)
-    for i in range(0, imAr.shape[1], 9): # for x axis
-        for j in range(0, imAr.shape[0], 9): # for y axis
+    squareList = createSquareList(imAr, num)
+    for i in range(0, imAr.shape[1], num): # for x axis
+        for j in range(0, imAr.shape[0], num): # for y axis
             # now for the ind. square
             RGBvalsInSquare = []
-            for k in range(0, 9): # for mini x axis
-                for l in range(0, 9): # for mini y axis
+            for k in range(0, num): # for mini x axis
+                for l in range(0, num): # for mini y axis
                     rgb = imAr[j + k][i + l]
                     RGBvalsInSquare.append(rgb)  # should be 81 long
-            squareList[int(j / 9)][int(i / 9)] = getAvgRGB(RGBvalsInSquare) # img reconstruction is backwards (height, then width)
+            squareList[int(j / num)][int(i / num)] = getAvgRGB(RGBvalsInSquare) # img reconstruction is backwards (height, then width)
     return np.asarray(squareList)
 
 
@@ -86,9 +68,25 @@ def constructNewIm(oldImAr, newImAr):
     newImg = newImg.resize((width, height))
     return newImg
 
-lowerImgQuality('test.jpg')
+def lowerImgQuality(imgPath, divSize):
+    im = Image.open(imgPath)
+    originalPixelAr = np.asarray(im)
+    im.show()
+
+    #resize the img to be a good multiple
+    im = resizeImg(im, divSize)
+
+    #make the new image using the old image pixel array for size, and the new array for content
+    newIm = constructNewIm(originalPixelAr, getNewPixelAr(im, divSize)) #the larger the div size, the larger each approximated square, this the fewer different total "pixels" in the image
+
+    newIm.show()
 
 
+def main():
+    lowerImgQuality('image0.jpg', 10)
+
+
+main()
 
 
 
