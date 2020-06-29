@@ -2,6 +2,15 @@
 #if using a single image, change the image color and stuff so it fits
 #use tkinter prolly
 #save qtCreator for some c++ stuff
+
+'''
+    So what is this project? It's an Image Reconstructor!
+        - You can make images from other images
+            -Works via lowering the quality of an image through "Pixel Approximation". The approximation scale is of the users choice
+            -By cutting the image into squares of divSize x divSize pixels, each square takes on a single pixel color, effectively generalizing the rgb values within a given region of the picture
+            -Another image is edited to fit the rgb values found in the generalized square region
+        - You can apply weird functions (which I will think of) to each of the pixels in the image, changing the color, location, etc, effectively creating a new, weirder image
+'''
 import matplotlib as plt
 import numpy as np
 from PIL import Image
@@ -61,23 +70,25 @@ def getNewPixelAr(im, num):
 
 
 # construct the new image from the new array, using the width and height of the original image to resize
-def constructNewIm(oldImAr, newImAr):
+# kinda useless, but sorta cool
+def constructLowerQualityIm(oldImAr, newImAr):
     newImg = Image.fromarray(newImAr.astype(np.uint8))
     width = oldImAr.shape[1]
     height = oldImAr.shape[0]
     newImg = newImg.resize((width, height))
     return newImg
 
+#combine all the functions above and run it in standard format
 def lowerImgQuality(imgPath, divSize):
     im = Image.open(imgPath)
     originalPixelAr = np.asarray(im)
     im.show()
 
-    #resize the img to be a good multiple
+    #resize the img so that x and y are multiples of div size
     im = resizeImg(im, divSize)
 
     #make the new image using the old image pixel array for size, and the new array for content
-    newIm = constructNewIm(originalPixelAr, getNewPixelAr(im, divSize)) #the larger the div size, the larger each approximated square, this the fewer different total "pixels" in the image
+    newIm = constructLowerQualityIm(originalPixelAr, getNewPixelAr(im, divSize)) #the larger the div size, the larger each approximated square, this the fewer different total "pixels" in the image
 
     newIm.show()
 
