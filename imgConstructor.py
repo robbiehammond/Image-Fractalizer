@@ -1,7 +1,9 @@
-from PIL import Image
+from PIL import Image, ImageEnhance
 import numpy as np
 import colorsys
+import imgAnalyzer
 
+#use imgenhance for blacks and whites
 rgb_to_hsv = np.vectorize(colorsys.rgb_to_hsv)
 hsv_to_rgb = np.vectorize(colorsys.hsv_to_rgb)
 
@@ -23,7 +25,28 @@ def colorize(image, hue):
    new_img = Image.fromarray(shift_hue(arr, hue/360.).astype('uint8'), 'RGBA')
 
    return new_img
-img = Image.open('image0.jpg')
-img = colorize(img, 360)
 
-img.show()
+img = Image.open('image0.jpg')
+
+#resize and then get the pixels for this image
+img = imgAnalyzer.resizeImg(img, 10)
+pixelAr = imgAnalyzer.getNewPixelAr(img, 10)
+
+
+#make the array of copies of the appropriate length (1 pic for each new pixel)
+#currently slow as shit, but working
+copyAr = []
+for i in range(0, int(pixelAr.shape[0])):
+   copyAr.append([])
+   for j in range(0, pixelAr.shape[1]):
+      copyAr[i].append([])
+      tempImg = img
+      filter = rgb_to_hsv(pixelAr[i][j][0], pixelAr[i][j][1], pixelAr[i][j][2])
+      tempImg = colorize(tempImg, filter[0])
+      copyAr[i][j] = tempImg
+      print("here")
+
+copyAr[5][5].show()
+
+
+
