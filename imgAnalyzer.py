@@ -99,17 +99,6 @@ def main():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 '''tentative algo:
         -get the color of each and every pixel
         -find the average color of the 8(ish) surrounding pixels (ie a square)
