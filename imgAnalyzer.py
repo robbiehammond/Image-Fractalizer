@@ -12,7 +12,9 @@
         - You can apply weird functions (which I will think of) to each of the pixels in the image, changing the color, location, etc, effectively creating a new, weirder image
         - Create image from an array you input yourself? who knows
 '''
-import matplotlib as plt
+
+# TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
+
 import numpy as np
 from PIL import Image
 
@@ -56,6 +58,7 @@ def createSquareList(imAr, num):
 # traverses the image in standard format, skipping every 9. for each (x, y) stop the outer two 4 loops make we examine the smaller 9x9 square consisting of (x -> x + 8, y -> y + 8)
 # and find the average rgb value. Then push that average into the approximated pixel square list
 def getNewPixelAr(im, num):
+    im = resizeImg(im, num)
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
     for i in range(0, imAr.shape[1], num): # for x axis
@@ -68,6 +71,19 @@ def getNewPixelAr(im, num):
                     RGBvalsInSquare.append(rgb)  # should be 81 long
             squareList[int(j / num)][int(i / num)] = getAvgRGB(RGBvalsInSquare) # img reconstruction is backwards (height, then width)
     return np.asarray(squareList)
+
+def constructNewImg(img, divSize):
+    pixelAr = getNewPixelAr(img, divSize)
+
+    newImg = Image.new('RGB', img.size)
+    for i in range(0, int(pixelAr.shape[1])):
+        for j in range(0, pixelAr.shape[0]):
+            tempImg = img
+            tempImg = tempImg.resize((divSize, divSize))
+            layer = Image.new('RGB', tempImg.size, (pixelAr[j][i][0], pixelAr[j][i][1], pixelAr[j][i][2]))
+            tempImg = Image.blend(tempImg, layer, .5)
+            newImg.paste(tempImg, (divSize * i, divSize * j))
+    return newImg
 
 
 # construct the new image from the new array, using the width and height of the original image to resize
@@ -85,26 +101,14 @@ def lowerImgQuality(imgPath, divSize):
     originalPixelAr = np.asarray(im)
     im.show()
 
-    #resize the img so that x and y are multiples of div size
-    im = resizeImg(im, divSize)
+    newImg = constructNewImg(im, divSize)
+    newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
+    newImg.save('newImg.jpg')
+    newImg.show()
 
-    #make the new image using the old image pixel array for size, and the new array for content
-    newIm = constructLowerQualityIm(originalPixelAr, getNewPixelAr(im, divSize)) #the larger the div size, the larger each approximated square, this the fewer different total "pixels" in the image
-
-    newIm.show()
 
 
 def main():
     lowerImgQuality('image0.jpg', 10)
 
-
-
-'''tentative algo:
-        -get the color of each and every pixel
-        -find the average color of the 8(ish) surrounding pixels (ie a square)
-            -reshape the image so that perfect squares of 9 pixels can be made - worked
-            -find color of each pixel, take avg of all - worked
-        -edit other image to fit that color 
-        -repeat for each
-        -done 
-'''
+main()
