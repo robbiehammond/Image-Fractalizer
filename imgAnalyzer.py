@@ -99,14 +99,16 @@ def constructNewImg(img, divSize):
 
 
 # combine all the functions above and run it in standard format
-def fractalize(imgPath, divSize):
+def fractalize(imgPath, divSize, savePath):
     divSize = int(divSize)  # is passed in as str from GUI, fix this l8r
     im = Image.open(imgPath)
+    format = im.format
     im = im.convert('RGB') # make sure it is in RGB format before going on
     originalPixelAr = np.asarray(im)
-    im.show()
 
     newImg = constructNewImg(im, divSize)
     newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
-    newImg.show()
+    newImg.save(savePath + '/FractalizedImg.' + str(format).lower(), str(format))
     return newImg
+
+#fractalize('image0.jpg', 10, "C:/Users/Robbie/Desktop")
