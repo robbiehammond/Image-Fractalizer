@@ -19,6 +19,21 @@
 import numpy as np
 from PIL import Image
 
+percentDone = 0
+dividingImage = False
+fractalizing = False
+finishingUp = False
+
+
+def getPercentDone():
+    global percentDone
+    return percentDone
+
+
+def setPercentDone(percent):
+    global percentDone
+    percentDone = percent
+
 
 # make the image be divisible by some user-inputted number
 def resizeImg(inputIm, num):
@@ -49,7 +64,8 @@ def getAvgRGB(inputSquare):
     return (r, g, b)
 
 
-# create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of indexes
+# create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of
+# indexes
 def createSquareList(imAr, num):
     squareList = []
     for i in range(0, int(imAr.shape[0] / num)):
@@ -59,9 +75,13 @@ def createSquareList(imAr, num):
     return squareList
 
 
-# traverses the image in standard format, skipping every 9. for each (x, y) stop the outer two 4 loops make we examine the smaller 9x9 square consisting of (x -> x + 8, y -> y + 8)
-# and find the average rgb value. Then push that average into the approximated pixel square list
+# traverses the image in standard format, skipping every 9. for each (x, y) stop the outer two 4 loops make we
+# examine the smaller 9x9 square consisting of (x -> x + 8, y -> y + 8) and find the average rgb value. Then push
+# that average into the approximated pixel square list
 def getNewPixelAr(im, num):
+    global dividingImage
+    dividingImage = True
+
     im = resizeImg(im, num)
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
@@ -75,10 +95,14 @@ def getNewPixelAr(im, num):
                     RGBvalsInSquare.append(rgb)  # should be 81 long
             squareList[int(j / num)][int(i / num)] = getAvgRGB(
                 RGBvalsInSquare)  # img reconstruction is backwards (height, then width)
+    dividingImage = False
     return np.asarray(squareList)
 
 
 def constructNewImg(img, divSize):
+    global fractalizing
+    fractalizing = True
+
     # array of larger pixels
     pixelAr = getNewPixelAr(img, divSize)
 
@@ -96,6 +120,8 @@ def constructNewImg(img, divSize):
             tempImg = Image.blend(tempImg, layer, .5)
             # put this edited version of the original image at an apporpriate spot of the new image
             newImg.paste(tempImg, (divSize * i, divSize * j))
+        setPercentDone(int((i / (pixelAr.shape[1] - 1)) * 100))
+    fractalizing = False
     return newImg
 
 
@@ -104,12 +130,17 @@ def fractalize(imgPath, divSize, savePath):
     divSize = int(divSize)  # is passed in as str from GUI, fix this l8r
     im = Image.open(imgPath)
     format = im.format
-    im = im.convert('RGB') # make sure it is in RGB format before going on
+    im = im.convert('RGB')  # make sure it is in RGB format before going on
     originalPixelAr = np.asarray(im)
 
     newImg = constructNewImg(im, divSize)
+
+    global finishingUp
+    finishingUp = True
     newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
     newImg.save(savePath + '/FractalizedImg.' + str(format).lower(), str(format))
+    finishingUp = False
+    setPercentDone(0)
     return newImg
 
-#fractalize('image0.jpg', 10, "C:/Users/Robbie/Desktop")
+# fractalize('image0.jpg', 10, "C:/Users/Robbie/Desktop")
