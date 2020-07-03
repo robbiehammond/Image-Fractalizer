@@ -102,6 +102,7 @@ def constructNewImg(img, divSize):
 def fractalize(imgPath, divSize):
     divSize = int(divSize)  # is passed in as str from GUI, fix this l8r
     im = Image.open(imgPath)
+    im = im.convert('RGB') # make sure it is in RGB format before going on
     originalPixelAr = np.asarray(im)
     im.show()
 

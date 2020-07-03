@@ -1,23 +1,44 @@
 from tkinter import *
+from tkinter.filedialog import askopenfilename
 import imgAnalyzer as IA
+
+file = None
+divSize = 10
 
 
 root = Tk()
 
-e = Entry(root, width=50, fg="green", bg="purple", borderwidth=10)
-e.pack()
-e.insert(0, "Enter Name of image")
-e1 = Entry(root, width = 10, fg="red", bg="blue")
-e1.pack()
-e1.insert(0, "Enter the div size")
 
-def click():
-    inputText = e.get()
-    inputNum = e1.get()
-    IA.fractalize(inputText, inputNum)
+def startFractalize():
+    IA.fractalize(file, divSize)
 
-button = Button(root, text="fractalize", command=click, fg="blue", bg="red")
-button.pack()
+def chooseFile():
+    global file
+    file = askopenfilename(title="Select Image", filetypes=[("JPG or PNG Files", "*.jpg *.png")])
 
+
+def getDivSize():
+    global divSize
+    temp = str(chooseDivSize.get())
+    if temp.isdigit():
+        print(divSize)
+        divSize = temp
+    else:
+        # do something to alter this is invalid input
+        pass
+
+
+chooseDivSize = Entry(root, validate='all', validatecommand=('%i'))
+chooseDivSize.pack()
+
+
+fractButton = Button(root, text="fractalize", command=startFractalize, fg="blue", bg="red")
+fileChooseButton = Button(root, text="Choose Img", command=chooseFile)
+confirmDivButton = Button(root, text="Enter", command=getDivSize)
+
+
+fractButton.pack()
+fileChooseButton.pack()
+confirmDivButton.pack()
 
 root.mainloop()
