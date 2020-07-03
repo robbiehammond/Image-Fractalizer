@@ -52,15 +52,15 @@ def background(func, args):
 
 
 def startFractalize():
-    getDivSize()
     state.delete('1.0', END)
     state.insert('end', "Starting Process...")
+    updateDivSize()
     IA.fractalize(file, divSize, save)
     state.delete('1.0', END)
     state.insert('end', "Done!")
 
 
-def chooseFile():
+def getFilePath():
     global file
     file = askopenfilename(title="Select Image", filetypes=[("JPG, JPEG, or PNG Files", "*.jpg *.jpeg *.png")])
     filePath.configure(state='normal')
@@ -69,7 +69,7 @@ def chooseFile():
     filePath.configure(state='disabled')
 
 
-def getDivSize():
+def updateDivSize():
     global divSize
     temp = str(chooseDivSize.get())
     if temp.isdigit():
@@ -89,7 +89,7 @@ def getSavePath():
 
 
 fractButton = Button(root, text="fractalize", command=lambda: background(startFractalize, ()))
-fileChooseButton = Button(root, text="Choose Img", command=chooseFile)
+fileChooseButton = Button(root, text="Choose Img", command=getFilePath)
 saveChooseButton = Button(root, text="Save To...", command=getSavePath)
 
 fractButton.grid(row=3, column=0)
