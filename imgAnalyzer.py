@@ -14,6 +14,7 @@
 '''
 
 # TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
+# TODO - Make a percent done bar that updates on the GUI while fractalize is running
 
 import numpy as np
 from PIL import Image

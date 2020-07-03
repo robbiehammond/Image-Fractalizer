@@ -7,7 +7,6 @@ file = None
 save = None
 divSize = 10
 
-
 root = Tk()
 
 chooseDivSize = Entry(root, width=4)
@@ -23,8 +22,15 @@ savePath.insert(1.0, "Path to save to will be displayed here.")
 savePath.configure(state='disabled')
 savePath.grid(row=2, column=0)
 
+
+def background(func, args):
+    t1 = threading.Thread(target=func, args=args)
+    t1.start()
+
+
 def startFractalize():
     IA.fractalize(file, divSize, save)
+
 
 def chooseFile():
     global file
@@ -45,6 +51,7 @@ def getDivSize():
         # do something to alter this is invalid input
         pass
 
+
 def getSavePath():
     global save
     save = askdirectory()
@@ -54,15 +61,12 @@ def getSavePath():
     savePath.configure(state='disabled')
 
 
-
-
-fractButton = Button(root, text="fractalize", command=startFractalize)
+fractButton = Button(root, text="fractalize", command=lambda: background(startFractalize, ()))
 fileChooseButton = Button(root, text="Choose Img", command=chooseFile)
 saveChooseButton = Button(root, text="Save To...", command=getSavePath)
 confirmDivButton = Button(root, text="Confirm Division Size", command=getDivSize)
 
-
-fractButton.grid(row=3,column=0)
+fractButton.grid(row=3, column=0)
 fileChooseButton.grid(row=1, column=2)
 saveChooseButton.grid(row=2, column=2)
 confirmDivButton.grid(row=0, column=2)
