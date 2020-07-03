@@ -1,7 +1,7 @@
-#projet - reconstruct one image from multiple other, or a single image
-#if using a single image, change the image color and stuff so it fits
-#use tkinter prolly
-#save qtCreator for some c++ stuff
+# projet - reconstruct one image from multiple other, or a single image
+# if using a single image, change the image color and stuff so it fits
+# use tkinter prolly
+# save qtCreator for some c++ stuff
 
 '''
     So what is this project? It's an Image Reconstructor!
@@ -18,7 +18,8 @@
 import numpy as np
 from PIL import Image
 
-#make the image be divisible by some user-inputted number
+
+# make the image be divisible by some user-inputted number
 def resizeImg(inputIm, num):
     imAr = np.asarray(inputIm)
     width = imAr.shape[1]
@@ -30,13 +31,14 @@ def resizeImg(inputIm, num):
     finalIm = inputIm.resize((width, height))
     return finalIm
 
+
 # get the avg RGB value in some mini square
 def getAvgRGB(inputSquare):
     r = 0
     g = 0
     b = 0
     for pixel in inputSquare:
-        r += pixel[0] # the r value of this pixel, etc
+        r += pixel[0]  # the r value of this pixel, etc
         g += pixel[1]
         b += pixel[2]
     # divide r g b by the number of pixels in the square - should be division number squared
@@ -44,6 +46,7 @@ def getAvgRGB(inputSquare):
     g = int(g / len(inputSquare))
     b = int(b / len(inputSquare))
     return (r, g, b)
+
 
 # create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of indexes
 def createSquareList(imAr, num):
@@ -61,54 +64,48 @@ def getNewPixelAr(im, num):
     im = resizeImg(im, num)
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
-    for i in range(0, imAr.shape[1], num): # for x axis
-        for j in range(0, imAr.shape[0], num): # for y axis
+    for i in range(0, imAr.shape[1], num):  # for x axis
+        for j in range(0, imAr.shape[0], num):  # for y axis
             # now for the ind. square
             RGBvalsInSquare = []
-            for k in range(0, num): # for mini x axis
-                for l in range(0, num): # for mini y axis
+            for k in range(0, num):  # for mini x axis
+                for l in range(0, num):  # for mini y axis
                     rgb = imAr[j + k][i + l]
                     RGBvalsInSquare.append(rgb)  # should be 81 long
-            squareList[int(j / num)][int(i / num)] = getAvgRGB(RGBvalsInSquare) # img reconstruction is backwards (height, then width)
+            squareList[int(j / num)][int(i / num)] = getAvgRGB(
+                RGBvalsInSquare)  # img reconstruction is backwards (height, then width)
     return np.asarray(squareList)
 
+
 def constructNewImg(img, divSize):
+    # array of larger pixels
     pixelAr = getNewPixelAr(img, divSize)
 
+    # start with a new, blank image the same size as the input image
     newImg = Image.new('RGB', img.size)
+    # traverse larger pixels left to right, top to bottom
     for i in range(0, int(pixelAr.shape[1])):
         for j in range(0, pixelAr.shape[0]):
+            # save the original image
             tempImg = img
+            # resize it appropriately, based on the div size
             tempImg = tempImg.resize((divSize, divSize))
+            # create a layer of the appropriate color based on the larger pixel ar, then put it on top of the image
             layer = Image.new('RGB', tempImg.size, (pixelAr[j][i][0], pixelAr[j][i][1], pixelAr[j][i][2]))
             tempImg = Image.blend(tempImg, layer, .5)
+            # put this edited version of the original image at an apporpriate spot of the new image
             newImg.paste(tempImg, (divSize * i, divSize * j))
     return newImg
 
 
-# construct the new image from the new array, using the width and height of the original image to resize
-# kinda useless, but sorta cool
-def constructLowerQualityIm(oldImAr, newImAr):
-    newImg = Image.fromarray(newImAr.astype(np.uint8))
-    width = oldImAr.shape[1]
-    height = oldImAr.shape[0]
-    newImg = newImg.resize((width, height))
-    return newImg
-
-#combine all the functions above and run it in standard format
-def lowerImgQuality(imgPath, divSize):
+# combine all the functions above and run it in standard format
+def fractalize(imgPath, divSize):
+    divSize = int(divSize)  # is passed in as str from GUI, fix this l8r
     im = Image.open(imgPath)
     originalPixelAr = np.asarray(im)
     im.show()
 
     newImg = constructNewImg(im, divSize)
     newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
-    newImg.save('newImg.jpg')
     newImg.show()
-
-
-
-def main():
-    lowerImgQuality('image0.jpg', 10)
-
-main()
+    return newImg
