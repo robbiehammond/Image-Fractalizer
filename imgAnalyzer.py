@@ -14,7 +14,7 @@
 '''
 
 # TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
-# TODO - Make a percent done bar that updates on the GUI while fractalize is running
+# TODO - move the dividingImage, fractalizing, and finishingUp, so that there's never a point in the program duration where all are off (besides at the beginning and end). End one right after the other starts.
 
 import numpy as np
 from PIL import Image
@@ -75,9 +75,9 @@ def createSquareList(imAr, num):
     return squareList
 
 
-# traverses the image in standard format, skipping every 9. for each (x, y) stop the outer two 4 loops make we
-# examine the smaller 9x9 square consisting of (x -> x + 8, y -> y + 8) and find the average rgb value. Then push
-# that average into the approximated pixel square list
+# traverses the image in standard format, skipping every n pixels. for each (x, y) pair, stop the outer two for loops
+# We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and find the average rgb value of that set of pixels
+# Then push that average into the approximated pixel square list
 def getNewPixelAr(im, num):
     global dividingImage
     dividingImage = True
@@ -126,7 +126,7 @@ def constructNewImg(img, divSize):
 
 
 # combine all the functions above and run it in standard format
-def fractalize(imgPath, divSize, savePath):
+def fractalize(imgPath, divSize, savePath, name):
     divSize = int(divSize)  # is passed in as str from GUI, fix this l8r
     im = Image.open(imgPath)
     format = im.format
@@ -138,9 +138,7 @@ def fractalize(imgPath, divSize, savePath):
     global finishingUp
     finishingUp = True
     newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
-    newImg.save(savePath + '/FractalizedImg.' + str(format).lower(), str(format))
+    newImg.save(savePath + '/' + name + '.' + str(format).lower(), str(format))
     finishingUp = False
-    setPercentDone(0)
     return newImg
 
-# fractalize('image0.jpg', 10, "C:/Users/Robbie/Desktop")
