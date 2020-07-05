@@ -3,11 +3,14 @@ from tkinter.filedialog import askopenfilename, askdirectory
 from tkinter.ttk import *
 import threading
 import os
+from PIL import Image
 import fractalizer as fract
 
 file = None
 save = None
 divSize = 10  # default value
+shouldResize = False
+back = False
 
 root = Tk()
 root.title("Image Fractalizer")
@@ -84,6 +87,8 @@ def updateDivSize():
 
 
 def startFractalize():
+    global shouldResize
+    global back
     clearStateBar()
     switchFractButtonState()
 
@@ -92,7 +97,26 @@ def startFractalize():
         switchFractButtonState()
         return
 
-    fract.fractalize(file, divSize, save, newImgName.get())
+    imgLarge = fract.checkValidity(file, divSize)
+    im = Image.open(file)
+    imgFormat = im.format
+    if imgLarge:
+        popupmsg("This is a large image, so it might take some time.\n"
+                 "If the image is shrunk, the division size will stay the same\n"
+                 "and the image dimensions will be lowered. Would you like to resize it?\n"
+                 "(If you want to speed up the program without changing the image dimensions,\n"
+                 "You can also increase the division size).")
+        if shouldResize:
+            im = fract.makeNotLarge(im, divSize)
+            shouldResize = False
+
+        if back:
+            switchFractButtonState()
+            clearStateBar()
+            back = False
+            return
+
+    fract.fractalize(im, imgFormat, divSize, save, newImgName.get())
 
     updateProgress()
     clearStateBar()
@@ -100,6 +124,33 @@ def startFractalize():
     root.after(5000, fract.setPercentDone, (0,))
     root.after(5000, clearStateBar)
     root.after(5000, switchFractButtonState)
+
+
+def popupmsg(msg):
+    popup = Tk()
+    popup.wm_title("!")
+    popup.wm_iconbitmap('Logo.ico')
+    label = Label(popup, text=msg)
+    label.pack(side="top", fill="x", pady=10)
+    B1 = Button(popup, text="No", command=popup.destroy)
+    B1.pack()
+    B2 = Button(popup, text="Yes", command=lambda: updateShouldResize(popup))
+    B2.pack()
+    B3 = Button(popup, text="Go Back", command=lambda: updateBack(popup))
+    B3.pack()
+    popup.mainloop()
+
+
+def updateShouldResize(popup):
+    global shouldResize
+    popup.destroy()
+    shouldResize = True
+
+
+def updateBack(popup):
+    global back
+    popup.destroy()
+    back = True
 
 
 def paramsAreValid():

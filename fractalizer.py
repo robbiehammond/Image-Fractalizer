@@ -1,9 +1,6 @@
 import numpy as np
 from PIL import Image
-
-# TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
-# TODO - Get better logo
-# TODO - separate the functions in the construction of the image, and then have the dividingImage, fracalizing, and finishingUp changed only in fractalize(). Edit function parameters when necessary to get all info passed.
+import math
 
 percentDone = 0
 dividingImage = False
@@ -21,17 +18,42 @@ def setPercentDone(percent):
     percentDone = percent
 
 
+def checkValidity(imgPath, num):
+    inputIm = Image.open(imgPath)
+    imAr = np.asarray(inputIm)
+    width = imAr.shape[1]
+    height = imAr.shape[0]
+    return (width * height) / int(num) > 350000
+
+
 # make the image be divisible by some user-inputted number
 def resizeImg(inputIm, num):
     imAr = np.asarray(inputIm)
     width = imAr.shape[1]
     height = imAr.shape[0]
+
     while width % num != 0:
         width += 1
     while height % num != 0:
         height += 1
     finalIm = inputIm.resize((width, height))
     return finalIm
+
+
+def makeNotLarge(inputIm, num):
+    num = int(num)
+    imAr = np.asarray(inputIm)
+    width = imAr.shape[1]
+    height = imAr.shape[0]
+    while (width * height) / num > 350000:
+        width -= (1/30)*(math.sqrt(1/2) * width)
+        height -= (1/30)*(math.sqrt(1/2) * height)
+
+    width = int(width)
+    height = int(height)
+
+    notLargeIm = inputIm.resize((width, height))
+    return notLargeIm
 
 
 # get the avg RGB value in some mini square
@@ -65,7 +87,6 @@ def createSquareList(imAr, num):
 # We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and find the average rgb value of that set of pixels
 # Then push that average into the approximated pixel square list
 def getNewPixelAr(im, num):
-    im = resizeImg(im, num)
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
     for i in range(0, imAr.shape[1], num):  # for x axis
@@ -101,12 +122,12 @@ def constructNewImg(img, divSize, pixelAr):
 
 
 # combine all the functions above and run it in standard format
-def fractalize(imgPath, divSize, savePath, name):
+def fractalize(im, imgFormat, divSize, savePath, name):
     divSize = int(divSize)
-    im = Image.open(imgPath)
-    imgFormat = im.format
     im = im.convert('RGB')
     originalPixelAr = np.asarray(im)
+
+    im = resizeImg(im, divSize)
 
     global dividingImage
     dividingImage = True
