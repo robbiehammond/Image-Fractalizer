@@ -3,6 +3,7 @@ from PIL import Image
 
 # TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
 # TODO - Get better logo
+# TODO - separate the functions in the construction of the image, and then have the dividingImage, fracalizing, and finishingUp changed only in fractalize(). Edit function parameters when necessary to get all info passed.
 
 percentDone = 0
 dividingImage = False
@@ -64,9 +65,6 @@ def createSquareList(imAr, num):
 # We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and find the average rgb value of that set of pixels
 # Then push that average into the approximated pixel square list
 def getNewPixelAr(im, num):
-    global dividingImage
-    dividingImage = True
-
     im = resizeImg(im, num)
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
@@ -80,17 +78,10 @@ def getNewPixelAr(im, num):
                     RGBvalsInSquare.append(rgb)  # should be 81 long
             squareList[int(j / num)][int(i / num)] = getAvgRGB(
                 RGBvalsInSquare)  # img reconstruction is backwards (height, then width)
-    dividingImage = False
     return np.asarray(squareList)
 
 
-def constructNewImg(img, divSize):
-    global fractalizing
-    fractalizing = True
-
-    # array of larger pixels
-    pixelAr = getNewPixelAr(img, divSize)
-
+def constructNewImg(img, divSize, pixelAr):
     # start with a new, blank image the same size as the input image
     newImg = Image.new('RGB', img.size)
     # traverse larger pixels left to right, top to bottom
@@ -106,23 +97,30 @@ def constructNewImg(img, divSize):
             # put this edited version of the original image at an apporpriate spot of the new image
             newImg.paste(tempImg, (divSize * i, divSize * j))
         setPercentDone(int((i / (pixelAr.shape[1] - 1)) * 100))
-    fractalizing = False
     return newImg
 
 
 # combine all the functions above and run it in standard format
 def fractalize(imgPath, divSize, savePath, name):
-    divSize = int(divSize)  # is passed in as str from GUI, fix this l8r
+    divSize = int(divSize)
     im = Image.open(imgPath)
-    format = im.format
-    im = im.convert('RGB')  # make sure it is in RGB format before going on
+    imgFormat = im.format
+    im = im.convert('RGB')
     originalPixelAr = np.asarray(im)
 
-    newImg = constructNewImg(im, divSize)
+    global dividingImage
+    dividingImage = True
+    newPixelAr = getNewPixelAr(im, divSize)
+    dividingImage = False
+
+    global fractalizing
+    fractalizing = True
+    newImg = constructNewImg(im, divSize, newPixelAr)
+    fractalizing = False
 
     global finishingUp
     finishingUp = True
     newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
-    newImg.save(savePath + '/' + name + '.' + str(format).lower(), str(format))
+    newImg.save(savePath + '/' + name + '.' + str(imgFormat).lower(), str(imgFormat))
     finishingUp = False
     return newImg

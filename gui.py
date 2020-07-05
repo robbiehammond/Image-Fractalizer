@@ -13,7 +13,6 @@ root = Tk()
 root.title("Image Fractalizer")
 root.geometry("500x300")
 root.wm_iconbitmap('Logo.ico')
-
 root.resizable(False, False)
 
 divLabel = Label(root, text="Enter Division Size:")
@@ -86,9 +85,11 @@ def updateDivSize():
 
 def startFractalize():
     clearStateBar()
+    switchFractButtonState()
 
     state.insert('end', "Starting Process...")
     if not paramsAreValid():
+        switchFractButtonState()
         return
 
     fract.fractalize(file, divSize, save, newImgName.get())
@@ -98,6 +99,7 @@ def startFractalize():
     state.insert('end', "Done!")
     root.after(5000, fract.setPercentDone, (0,))
     root.after(5000, clearStateBar)
+    root.after(5000, switchFractButtonState)
 
 
 def paramsAreValid():
@@ -143,10 +145,20 @@ fractButton = Button(root, text="Fractalize!", command=lambda: startNewThread(st
 fileChooseButton = Button(root, text="Choose Image", command=updateFilePath)
 saveChooseButton = Button(root, text="Save To...", command=updateSavePath)
 
+
+def switchFractButtonState():
+    if str(fractButton['state']) == 'normal':
+        fractButton['state'] = DISABLED
+        fractButton.configure(text="Please Wait")
+    else:
+        fractButton['state'] = NORMAL
+        fractButton.configure(text="Fractalize!")
+
+
 fractButton.place(relx=.5, rely=.75, anchor=CENTER)
 fileChooseButton.place(relx=.85, rely=.2, anchor=CENTER)
 saveChooseButton.place(relx=.85, rely=.4, anchor=CENTER)
 
-
 root.after(2000, updateProgress)
 root.mainloop()
+os._exit(1)  # in case the fractalizing thread is still going
