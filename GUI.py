@@ -2,7 +2,8 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename, askdirectory
 from tkinter.ttk import *
 import threading
-import imgAnalyzer as IA
+import os
+import fractalizer as fract
 
 file = None
 save = None
@@ -10,74 +11,53 @@ divSize = 10  # default value
 
 root = Tk()
 root.title("Image Fractalizer")
+root.geometry("500x300")
+root.wm_iconbitmap('Logo.ico')
 
-divLabel = Label(root, text="Enter Division Size:") # Div size explanation - 1 new pixel = (Div Size)^2 old pixels
-divLabel.grid(sticky=W)
+root.resizable(False, False)
+
+divLabel = Label(root, text="Enter Division Size:")
+divLabel.place(relx=.35, rely=.05, anchor=CENTER)
 
 chooseDivSize = Entry(root, width=10)
-chooseDivSize.insert(1, "10")
-chooseDivSize.grid(row=0, column=0, pady=5)
+chooseDivSize.insert(1, divSize)
+chooseDivSize.place(relx=.55, rely=.05, anchor=CENTER)
 
 defaultName = StringVar()
-newImgName = Entry(root, width=40, textvariable=defaultName)
+newImgName = Entry(root, width=50, textvariable=defaultName)
 defaultName.set("My Fractalized Image")
-newImgName.grid(row=3, pady = 5)
+newImgName.place(relx=.4, rely=.6, anchor=CENTER)
 
-nameLabel = Label(root, text="    Type New\n<- Image Name\n    (without extension)")
-nameLabel.grid(row=3, column = 1)
+nameLabel = Label(root, text="Type New Image Name\n(Without File Extension)")
+nameLabel.place(relx=.85, rely=.6, anchor=CENTER)
 
-
-filePath = Text(root, width=40, height=3)
-filePath.insert(1.0, "Image path will be displayed here.")
+filePath = Text(root, width=50, height=3)
+filePath.insert(1.0, "Original image path will be displayed here")
 filePath.configure(state='disabled')
-filePath.grid(row=1, column=0, padx=5, pady=5)
+filePath.place(relx=.4, rely=.2, anchor=CENTER)
 
-savePath = Text(root, width=40, height=3)
-savePath.insert(1.0, "Path to save to will be displayed here.")
+savePath = Text(root, width=50, height=3)
+savePath.insert(1.0, "Save path for the new image will be displayed here")
 savePath.configure(state='disabled')
-savePath.grid(row=2, column=0, padx=5, pady=5)
+savePath.place(relx=.4, rely=.4, anchor=CENTER)
 
-progress = Progressbar(root, orient=HORIZONTAL, length=200, mode='determinate')
-progress.grid(row=5, column=0, pady=5)
+progress = Progressbar(root, orient=HORIZONTAL, length=300, mode='determinate')
+progress.place(relx=.5, rely=.85, anchor=CENTER)
 
 state = Text(root, width=20, height=1)
-state.grid(row=6, column=0, pady=5)
+state.place(relx=.5, rely=.95, anchor=CENTER)
 
 
-def updateProgress():
-    progress['value'] = IA.getPercentDone()
-    root.after(2000, updateProgress)
-    if IA.dividingImage:
-        clearStateBar()
-        state.insert('end', "Dividing Image...")
-    elif IA.fractalizing:
-        clearStateBar()
-        state.insert('end', "Fractalizing...")
-    elif IA.finishingUp:
-        clearStateBar()
-        state.insert('end', "Finishing Up...")
+def startNewThread(func, args):
+    thread = threading.Thread(target=func, args=args)
+    thread.start()
 
-
-def background(func, args):
-    t1 = threading.Thread(target=func, args=args)
-    t1.start()
 
 def clearStateBar():
     state.delete('1.0', END)
 
 
-def startFractalize():
-    clearStateBar()
-    state.insert('end', "Starting Process...")
-    updateDivSize()
-    IA.fractalize(file, divSize, save, newImgName.get())
-    clearStateBar()
-    state.insert('end', "Done!")
-    root.after(5000, IA.setPercentDone, (0,))
-    root.after(5000, clearStateBar)
-
-
-def getFilePath():
+def updateFilePath():
     global file
     file = askopenfilename(title="Select Image", filetypes=[("JPG, JPEG, or PNG Files", "*.jpg *.jpeg *.png")])
     filePath.configure(state='normal')
@@ -86,19 +66,7 @@ def getFilePath():
     filePath.configure(state='disabled')
 
 
-def updateDivSize():
-    global divSize
-    temp = str(chooseDivSize.get())
-    if temp.isdigit():
-        divSize = temp
-    else:
-        clearStateBar()
-        state.insert("Error Has Occurred.")
-        divSize = 0
-        pass
-
-
-def getSavePath():
+def updateSavePath():
     global save
     save = askdirectory()
     savePath.configure(state='normal')
@@ -107,13 +75,78 @@ def getSavePath():
     savePath.configure(state='disabled')
 
 
-fractButton = Button(root, text="fractalize", command=lambda: background(startFractalize, ()))
-fileChooseButton = Button(root, text="Choose Img", command=getFilePath)
-saveChooseButton = Button(root, text="Save To...", command=getSavePath)
+def updateDivSize():
+    global divSize
+    temp = str(chooseDivSize.get())
+    if temp.isdigit():
+        divSize = temp
+    else:
+        divSize = 0
 
-fractButton.grid(row=4, column=0)
-fileChooseButton.grid(row=1, column=1)
-saveChooseButton.grid(row=2, column=1)
+
+def startFractalize():
+    clearStateBar()
+
+    state.insert('end', "Starting Process...")
+    if not paramsAreValid():
+        return
+
+    fract.fractalize(file, divSize, save, newImgName.get())
+
+    updateProgress()
+    clearStateBar()
+    state.insert('end', "Done!")
+    root.after(5000, fract.setPercentDone, (0,))
+    root.after(5000, clearStateBar)
+
+
+def paramsAreValid():
+    # checks if the division size is not a number or if it is less than 0.
+    updateDivSize()
+    if not str(divSize).isdigit() or int(divSize) <= 0:
+        clearStateBar()
+        state.insert('end', 'Invalid Div Size!')
+        return False
+
+    # checks if a path has not been written to the file variable and that the path exists
+    if file is None or not os.path.exists(file):
+        clearStateBar()
+        state.insert('end', 'Invalid File Path!')
+        return False
+
+    # checks if a path has not been written to the save variable and that the path exists
+    if save is None or not os.path.exists(save):
+        clearStateBar()
+        state.insert('end', 'Invalid Save Path!')
+        return False
+
+    return True
+
+
+def updateProgress():
+    progress['value'] = fract.getPercentDone()
+    root.after(2000, updateProgress)
+
+    # get and display progress from the variables in fractalizer.py
+    if fract.dividingImage:
+        clearStateBar()
+        state.insert('end', "Dividing Image...")
+    elif fract.fractalizing:
+        clearStateBar()
+        state.insert('end', "Fractalizing...")
+    elif fract.finishingUp:
+        clearStateBar()
+        state.insert('end', "Finishing Up...")
+
+
+fractButton = Button(root, text="Fractalize!", command=lambda: startNewThread(startFractalize, ()))
+fileChooseButton = Button(root, text="Choose Image", command=updateFilePath)
+saveChooseButton = Button(root, text="Save To...", command=updateSavePath)
+
+fractButton.place(relx=.5, rely=.75, anchor=CENTER)
+fileChooseButton.place(relx=.85, rely=.2, anchor=CENTER)
+saveChooseButton.place(relx=.85, rely=.4, anchor=CENTER)
+
 
 root.after(2000, updateProgress)
 root.mainloop()

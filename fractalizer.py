@@ -1,23 +1,8 @@
-# projet - reconstruct one image from multiple other, or a single image
-# if using a single image, change the image color and stuff so it fits
-# use tkinter prolly
-# save qtCreator for some c++ stuff
-
-'''
-    So what is this project? It's an Image Reconstructor!
-        - You can make images from other images
-            -Works via lowering the quality of an image through "Pixel Approximation". The approximation scale is of the users choice
-            -By cutting the image into squares of divSize x divSize pixels, each square takes on a single pixel color, effectively generalizing the rgb values within a given region of the picture
-            -Another image is edited to fit the rgb values found in the generalized square region
-        - You can apply weird functions (which I will think of) to each of the pixels in the image, changing the color, location, etc, effectively creating a new, weirder image
-        - Create image from an array you input yourself? who knows
-'''
-
-# TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
-# TODO - move the dividingImage, fractalizing, and finishingUp, so that there's never a point in the program duration where all are off (besides at the beginning and end). End one right after the other starts.
-
 import numpy as np
 from PIL import Image
+
+# TODO - Scale image down before processing to reduce time it takes for extremely large images (maybe if the dimensions are both above 1000, ask the user if they'd like to scale the image down to save time)
+# TODO - Get better logo
 
 percentDone = 0
 dividingImage = False
@@ -141,4 +126,3 @@ def fractalize(imgPath, divSize, savePath, name):
     newImg.save(savePath + '/' + name + '.' + str(format).lower(), str(format))
     finishingUp = False
     return newImg
-
