@@ -6,6 +6,7 @@ percentDone = 0
 dividingImage = False
 fractalizing = False
 finishingUp = False
+maxThreshold = 350000
 
 
 def getPercentDone():
@@ -18,15 +19,36 @@ def setPercentDone(percent):
     percentDone = percent
 
 
-def checkValidity(imgPath, num):
+def isAboveThreshold(imgPath, num):
     inputIm = Image.open(imgPath)
     imAr = np.asarray(inputIm)
     width = imAr.shape[1]
     height = imAr.shape[0]
-    return (width * height) / int(num) > 350000
+    return (width * height) / int(num) > maxThreshold
 
 
-# make the image be divisible by some user-inputted number
+# shrink image to get it below threshold
+def forceBelowThreshold(inputIm, num):
+    num = int(num)
+    imAr = np.asarray(inputIm)
+    width = imAr.shape[1]
+    height = imAr.shape[0]
+    while (width * height) / num > maxThreshold:
+        # want to keep proportions the same, so img must be shrunk by a factor of sqrt(2) (deduced from pythagoras thrm)
+        # 1/30 is somewhat arbitrary - gets below threshold quick but doesn't "overshoot" getting below it much
+        # a smaller value could technically work more accurately, but the difference is negligible past 1/30
+        width -= (1 / 30) * (math.sqrt(1 / 2) * width)
+        height -= (1 / 30) * (math.sqrt(1 / 2) * height)
+
+    width = int(width)
+    height = int(height)
+
+    notLargeIm = inputIm.resize((width, height))
+    notLargeIm.format = inputIm.format
+    return notLargeIm
+
+
+# make the image be divisible by the div size
 def resizeImg(inputIm, num):
     imAr = np.asarray(inputIm)
     width = imAr.shape[1]
@@ -40,29 +62,13 @@ def resizeImg(inputIm, num):
     return finalIm
 
 
-def makeNotLarge(inputIm, num):
-    num = int(num)
-    imAr = np.asarray(inputIm)
-    width = imAr.shape[1]
-    height = imAr.shape[0]
-    while (width * height) / num > 350000:
-        width -= (1/30)*(math.sqrt(1/2) * width)
-        height -= (1/30)*(math.sqrt(1/2) * height)
-
-    width = int(width)
-    height = int(height)
-
-    notLargeIm = inputIm.resize((width, height))
-    return notLargeIm
-
-
 # get the avg RGB value in some mini square
 def getAvgRGB(inputSquare):
     r = 0
     g = 0
     b = 0
     for pixel in inputSquare:
-        r += pixel[0]  # the r value of this pixel, etc
+        r += pixel[0]
         g += pixel[1]
         b += pixel[2]
     # divide r g b by the number of pixels in the square - should be division number squared
@@ -72,8 +78,8 @@ def getAvgRGB(inputSquare):
     return (r, g, b)
 
 
-# create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of
-# indexes
+'''create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of
+   indexes'''
 def createSquareList(imAr, num):
     squareList = []
     for i in range(0, int(imAr.shape[0] / num)):
@@ -83,9 +89,9 @@ def createSquareList(imAr, num):
     return squareList
 
 
-# traverses the image in standard format, skipping every n pixels. for each (x, y) pair, stop the outer two for loops
-# We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and find the average rgb value of that set of pixels
-# Then push that average into the approximated pixel square list
+''' traverses the image in standard format, skipping every n pixels. for each (x, y) pair, stop the outer two for loops
+    We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and 
+    find the average rgb value of that set of pixels. Then push that average into the approximated pixel square list '''
 def getNewPixelAr(im, num):
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
@@ -121,9 +127,10 @@ def constructNewImg(img, divSize, pixelAr):
     return newImg
 
 
-# combine all the functions above and run it in standard format
-def fractalize(im, imgFormat, divSize, savePath, name):
+# the "main" function of this program
+def fractalize(im, divSize, savePath, name):
     divSize = int(divSize)
+    imgFormat = im.format
     im = im.convert('RGB')
     originalPixelAr = np.asarray(im)
 

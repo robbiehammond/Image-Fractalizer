@@ -56,7 +56,12 @@ The best way to show exactly how the division size works is simply by showing ex
 As can be seen, the smaller the division size, the greater total copies of the image are used to reconstruct the image, leading to less approximation and
 greater detail. So a division size of 1 would yield a 1:1 ratio between the amount of pixels in the original image and the amount of image copies placed
 on the new image. This greater detail does come at a cost - the more images need to be filtered and added the reconstruction, the more processing power
-and time it takes the fractalizer to run. Depending on the image dimensions and division size, the fractalizer took anywhere from 5 seconds to 5 minutes to
-complete on an Intel i7-4790k for reasonably sized images and division sizes. Regardless, the GUI does have a progress bar, so you are able to see the 
-rate at which the fractalizer is running on your hardware.
+and time it takes the fractalizer to run. 
+
+### Runtime Explanation
+Depending on the image dimensions and division size, the fractalizer took anywhere from 2 seconds to 5 minutes to complete on an Intel i7-4790k for reasonably
+sized images and division sizes. As as safeguard to block against extremely long fractalization times, the program automatically compares a value calculated
+from the inputted image's dimensions and the inputted division size to a threshold value. Before fractalization, the program will tell you if the image will take a long
+time to fractalize, and then it will offer to resize it for you so that it can run faster if you so choose. In addition, the GUI does have a progress bar,
+so you are able to see the rate at which the fractalizer is running on your hardware.
 
