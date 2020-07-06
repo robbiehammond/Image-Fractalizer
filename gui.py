@@ -18,7 +18,8 @@ class PopupWindow:
         self.message = message
         self.window = Tk()
         self.window.title("You Sure About This?")
-        self.window.wm_iconbitmap('Logo.ico')
+        if os.name == "nt":
+            root.wm_iconbitmap('Logo.ico')
         self.window.protocol("WM_DELETE_WINDOW", self.disableExit)
         self.window.resizable(False, False)
         label = Label(self.window, text=self.message)
@@ -59,8 +60,9 @@ divSize = 10  # default value
 # GUI setup for everything but buttons
 root = Tk()
 root.title("Image Fractalizer")
-root.geometry("500x300")
-root.wm_iconbitmap('Logo.ico')
+root.geometry("600x400")
+if os.name == "nt": # only use the icon if we're on windows
+    root.wm_iconbitmap('Logo.ico')
 root.resizable(False, False)
 
 divLabel = Label(root, text="Enter Division Size (A Positive Integer):")

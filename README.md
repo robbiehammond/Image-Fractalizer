@@ -18,7 +18,6 @@ Image Fractalizer is a program in which you can input any JPG/JPEG/PNG image, an
 ![Fract Lake Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Ex2Fract20.png)
 
 ## How to Download and Use
-I'll add these later 
 
 ## How it Works
 The fractalization algorithm is actually relatively straightforward:
