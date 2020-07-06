@@ -18,6 +18,14 @@ Image Fractalizer is a program in which you can input any JPG/JPEG/PNG image, an
 ![Fract Lake Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Ex2Fract20.png)
 
 ## How to Download and Use
+Image Fractalizer is known to work on Windows and Linux.
+
+To Use:
+- Clone this repo
+- Make sure you have Python, Pillow (ver. 7.2.0), and NumPy (ver. 1.19.0) installed. If you don't have Pillow or Numpy,
+you can install them via the requirements file with pip - `pip install -r requirements.txt` 
+- Go to the directory in terminal and run `python gui.py`
+- Have fun!
 
 ## How it Works
 The fractalization algorithm is actually relatively straightforward:
