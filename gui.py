@@ -59,7 +59,10 @@ file = None
 save = None
 divSize = 10  # default value
 
+
 # GUI setup for everything but buttons, which are defined later
+
+
 root = Tk()
 root.title("Image Fractalizer")
 root.geometry("600x400")
@@ -284,6 +287,7 @@ fractButton.place(relx=.4, rely=.75, anchor=CENTER)
 stopButton.place(relx=.6, rely=.75, anchor=CENTER)
 fileChooseButton.place(relx=.85, rely=.2, anchor=CENTER)
 saveChooseButton.place(relx=.85, rely=.4, anchor=CENTER)
+
 
 root.after(2000, updateProgress)  # update progress bar every 2 seconds
 root.mainloop()
