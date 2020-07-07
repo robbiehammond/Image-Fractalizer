@@ -28,8 +28,8 @@ due to possible issues with displaying .ico files on Linux.
 
 To Use:
 - Clone this repo.
-- Make sure you have Python, Pillow (ver. 7.2.0), and NumPy (ver. 1.19.0) installed. If you don't have Pillow or Numpy,
-you can install them via the requirements file with pip - `pip install -r requirements.txt`.
+- Make sure you have Python, Pillow (ver. 7.2.0), and NumPy (ver. 1.19.0) installed. If you don't have Pillow and/or Numpy,
+you can install them via the requirements file with pip - go to the directory in terminal and type `pip install -r requirements.txt`.
 - Go to the directory in terminal and run `python gui.py`.
 - Follow the prompts on the GUI and have fun!
   -  Note: If you started a fractalization and want to stop it, press the "Stop!" button.
