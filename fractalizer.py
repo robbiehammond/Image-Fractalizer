@@ -13,17 +13,21 @@ maxThreshold = 400000  # good value found through trial and error
 
 def getPercentDone():
     global percentDone
-    return percentDone
+    ''' To protect against unwanted behavior when tampering with code - will always be true as long as percentDone was 
+    changed through setPercentDone, which makes sure the inputted percent was valid. Exception should never be thrown
+    under normal circumstances '''
+    if 0 <= percentDone <= 100:
+        return percentDone
+    else:
+        raise Exception('Invalid Percent Found. PercentDone was: {}'.format(percentDone))
 
 
 def setPercentDone(percent):
     global percentDone
-    percentDone = percent
-
-
-def stopASAP():
-    global mustStop
-    mustStop = True
+    if 0 <= int(percent) <= 100:
+        percentDone = int(percent)
+    else:
+        raise Exception('Invalid Percent Assigned. Attempted Assignment: {}'.format(percent))
 
 
 def isAboveThreshold(imgPath, num):
@@ -154,6 +158,7 @@ def constructNewImg(img, divSize, pixelAr):
 def fractalize(im, divSize, savePath, name):
     global mustStop
     mustStop = False
+
     divSize = int(divSize)  # comes in as str
     imgFormat = im.format
     im = im.convert('RGB')

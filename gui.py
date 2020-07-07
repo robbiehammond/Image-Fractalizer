@@ -206,7 +206,7 @@ def paramsAreValid():
 def stop():
     if fract.dividingImage or fract.fractalizing or fract.finishingUp:
         buttonDown(stopButton)
-        fract.stopASAP()
+        fract.mustStop = True
         clearStateBar()
         state.insert('end', 'Stopping...')
     else:
@@ -267,7 +267,7 @@ def startFractalize():
         state.insert('end', "Done!", 'Complete')
 
     # Regardless, wait a bit and then clear everything
-    root.after(3000, fract.setPercentDone, (0,))
+    root.after(3000, fract.setPercentDone, (0))
     root.after(3000, clearStateBar)
     root.after(3000, buttonUp, (fractButton))
 
