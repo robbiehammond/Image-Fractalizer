@@ -8,8 +8,6 @@ import os
 import fractalizer as fract
 
 
-# TODO - Finish taking the state.insert()s and putting in function. Maybe make a tag for standard text, so a tag is always inputted
-
 # pops up if the image is found to likely take a long time
 class PopupWindow:
     window = None
@@ -191,7 +189,7 @@ def paramsAreValid():
     updateDivSize()
     if not str(divSize).isdigit() or int(divSize) <= 0:  # if the division size is not a number or if it is not positive
         clearStateBar()
-        state.insert('end', 'Invalid Div Size!', 'Problem')
+        insertInStateBar('Invalid Div Size!', 'Problem')
         return False
 
     if file is None or not os.path.exists(file):
