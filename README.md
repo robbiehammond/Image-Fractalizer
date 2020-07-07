@@ -6,17 +6,17 @@ many smaller, filtered copies of itself.
 
 ### Concert Hall
 - Original Image
-![Unfract Concert Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Ex1UnFract.jpeg)
+![Unfract Concert Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/Ex1UnFract.jpeg)
 
 - Fractalized Image with a Division Size of 20
-![Fract Concert Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Ex1Fract20.jpeg)
+![Fract Concert Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/Ex1Fract20.jpeg)
 
 ### Lake
 - Original Image
-![Unfract Lake Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Ex2FUnFract.png)
+![Unfract Lake Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/Ex2FUnFract.png)
 
 - Fractalized Image with a Division Size of 20 (You might need to zoom in to see the factalization on this image)
-![Fract Lake Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Ex2Fract20.png)
+![Fract Lake Example](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/Ex2Fract20.png)
 
 ## How to Download and Use
 Works on Windows. Image Fractalizer also can run on Linux systems (tested on Ubuntu), but the icon is not displayed
@@ -54,20 +54,20 @@ and repeat until all pixels in the the pixel array have been traversed.
 The best way to show exactly how the division size works is simply by showing examples.
 
 - Here is a normal image of a dog (my dog named Button):
-![Original Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/Dog.jpeg)
+![Original Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/Dog.jpeg)
 
 - Here's the image put through the fractalizer with a division size of 150:
   - As you can see, it's pretty difficult to see how these images reconstruct the original image 
-![150 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/DogFract150.jpeg)
+![150 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/DogFract150.jpeg)
 
 - Here is the image with a division size of 100
-![100 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/DogFract100.jpeg)
+![100 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/DogFract100.jpeg)
 
 - A division size of 50
-![50 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/DogFract50.jpeg)
+![50 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/DogFract50.jpeg)
 
 - And a division size of 10
-![10 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/TestImages/DogFract10.jpeg)
+![10 Dog](https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/DogFract10.jpeg)
 
 As can be seen, the smaller the division size, the greater total copies of the image are used to reconstruct the image, leading to less approximation and
 greater detail. So a division size of 1 would yield a 1:1 ratio between the amount of pixels in the original image and the amount of image copies placed
