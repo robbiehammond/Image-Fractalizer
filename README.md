@@ -2,6 +2,10 @@
 Image Fractalizer is a program in which you can input any JPG/JPEG/PNG image, and then reconstruct that same image from
 many smaller, filtered copies of itself.
 
+<p align="center">
+  <img width="600" height="430" src="https://github.com/robbiehammond/Image-Fractalizer/blob/master/SampleImages/GUI.PNG">
+</p>
+
 ## Examples
 
 ### Concert Hall
