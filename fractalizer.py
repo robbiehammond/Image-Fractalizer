@@ -2,11 +2,13 @@ import numpy as np
 from PIL import Image
 import math
 
+
 percentDone = 0
 dividingImage = False
 fractalizing = False
 finishingUp = False
-maxThreshold = 350000
+mustStop = False
+maxThreshold = 400000  # good value found through trial and error 
 
 
 def getPercentDone():
@@ -17,6 +19,11 @@ def getPercentDone():
 def setPercentDone(percent):
     global percentDone
     percentDone = percent
+
+
+def stopASAP():
+    global mustStop
+    mustStop = True
 
 
 def isAboveThreshold(imgPath, num):
@@ -34,9 +41,9 @@ def forceBelowThreshold(inputIm, num):
     width = imAr.shape[1]
     height = imAr.shape[0]
     while (width * height) / num > maxThreshold:
-        # want to keep proportions the same, so img must be shrunk by a factor of sqrt(2) (deduced from pythagoras thrm)
+        # want to keep proportions the same, so img must be shrunk by a factor of sqrt(2) (from pythagoras theorem)
         # 1/30 is somewhat arbitrary - gets below threshold quick but doesn't "overshoot" getting below it much
-        # a smaller value could technically work more accurately, but the difference is negligible past 1/30
+        # a smaller value could technically work more accurately, but the difference seems to be negligible past 1/30
         width -= (1 / 30) * (math.sqrt(1 / 2) * width)
         height -= (1 / 30) * (math.sqrt(1 / 2) * height)
 
@@ -44,11 +51,11 @@ def forceBelowThreshold(inputIm, num):
     height = int(height)
 
     notLargeIm = inputIm.resize((width, height))
-    notLargeIm.format = inputIm.format
+    notLargeIm.format = inputIm.format  # format is lost when resizing, so must be reassigned
     return notLargeIm
 
 
-# make the image be divisible by the div size
+# make the image be divisible by the div size by making it slightly larger
 def resizeImg(inputIm, num):
     imAr = np.asarray(inputIm)
     width = imAr.shape[1]
@@ -93,26 +100,40 @@ def createSquareList(imAr, num):
     We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and 
     find the average rgb value of that set of pixels. Then push that average into the approximated pixel square list '''
 def getNewPixelAr(im, num):
+    global mustStop
     imAr = np.asarray(im)
     squareList = createSquareList(imAr, num)
+
     for i in range(0, imAr.shape[1], num):  # for x axis
+        if mustStop:  # check if we should stop every so often
+            return None
         for j in range(0, imAr.shape[0], num):  # for y axis
+
             # now for the ind. square
             RGBvalsInSquare = []
+
             for k in range(0, num):  # for mini x axis
                 for l in range(0, num):  # for mini y axis
                     rgb = imAr[j + k][i + l]
                     RGBvalsInSquare.append(rgb)  # should be 81 long
-            squareList[int(j / num)][int(i / num)] = getAvgRGB(
-                RGBvalsInSquare)  # img reconstruction is backwards (height, then width)
+
+            ''' (j, i) instead of (i, j) because PIL was designed with dimensions being (height, width) rather
+                than (width, height) '''
+            squareList[int(j / num)][int(i / num)] = getAvgRGB(RGBvalsInSquare)
+
     return np.asarray(squareList)
 
 
 def constructNewImg(img, divSize, pixelAr):
+    global mustStop
+
     # start with a new, blank image the same size as the input image
     newImg = Image.new('RGB', img.size)
+
     # traverse larger pixels left to right, top to bottom
     for i in range(0, int(pixelAr.shape[1])):
+        if mustStop:
+            return None
         for j in range(0, pixelAr.shape[0]):
             # save the original image
             tempImg = img
@@ -123,32 +144,50 @@ def constructNewImg(img, divSize, pixelAr):
             tempImg = Image.blend(tempImg, layer, .5)
             # put this edited version of the original image at an apporpriate spot of the new image
             newImg.paste(tempImg, (divSize * i, divSize * j))
+
         setPercentDone(int((i / (pixelAr.shape[1] - 1)) * 100))
+
     return newImg
 
 
-# the "main" function of this program
+# where the magic happens
 def fractalize(im, divSize, savePath, name):
-    divSize = int(divSize)
+    global mustStop
+    mustStop = False
+    divSize = int(divSize)  # comes in as str
     imgFormat = im.format
     im = im.convert('RGB')
     originalPixelAr = np.asarray(im)
 
     im = resizeImg(im, divSize)
 
+    # many checks to see if the program was told to halt - if it was, break out of the function
+    if mustStop:
+        return
+
     global dividingImage
     dividingImage = True
     newPixelAr = getNewPixelAr(im, divSize)
     dividingImage = False
+
+    if mustStop:
+        return
 
     global fractalizing
     fractalizing = True
     newImg = constructNewImg(im, divSize, newPixelAr)
     fractalizing = False
 
+    if mustStop:
+        return
+
     global finishingUp
     finishingUp = True
     newImg = newImg.resize((originalPixelAr.shape[1], originalPixelAr.shape[0]))
     newImg.save(savePath + '/' + name + '.' + str(imgFormat).lower(), str(imgFormat))
     finishingUp = False
+
+    if mustStop:
+        return
+
     return newImg
