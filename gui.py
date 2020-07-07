@@ -17,14 +17,17 @@ class PopupWindow:
 
     def __init__(self, message):
         self.message = message
+        
         self.window = Tk()
         self.window.title("You Sure About This?")
         if os.name == "nt":  # only display icon on windows
-            root.wm_iconbitmap('Logo.ico')
+            self.window.wm_iconbitmap('Logo.ico')
         self.window.protocol("WM_DELETE_WINDOW", self.disableExit)
         self.window.resizable(False, False)
+        
         label = Label(self.window, text=self.message)
         label.pack(padx=5, pady=10)
+        
         self.setUpButtons()
         self.window.mainloop()
 
