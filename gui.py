@@ -8,7 +8,9 @@ import os
 import fractalizer as fract
 
 
-# Pops up if the image is found to likely take a long time
+# TODO - Finish taking the state.insert()s and putting in function. Maybe make a tag for standard text, so a tag is always inputted
+
+# pops up if the image is found to likely take a long time
 class PopupWindow:
     window = None
     message = None
@@ -59,14 +61,13 @@ file = None
 save = None
 divSize = 10  # default value
 
-
 # GUI setup for everything but buttons, which are defined later
 
 
 root = Tk()
 root.title("Image Fractalizer")
 root.geometry("600x400")
-if os.name == "nt":
+if os.name == "nt":  # if on windows
     root.wm_iconbitmap('Logo.ico')
 root.resizable(False, False)
 
@@ -103,8 +104,10 @@ progress.place(relx=.5, rely=.85, anchor=CENTER)
 
 state = Text(root, width=20, height=1)
 state.place(relx=.5, rely=.95, anchor=CENTER)
+state.configure(state='disabled')
 state.tag_config('Complete', foreground='green')
 state.tag_config('Problem', foreground='red')
+state.tag_config('Default')
 
 
 # functions for GUI
@@ -115,9 +118,16 @@ def startNewThread(func, args):
     thread.start()
 
 
-# just to make 'state.delete('1.0', END)' easier to type
 def clearStateBar():
+    state.configure(state='normal')
     state.delete('1.0', END)
+    state.configure(state='disabled')
+
+
+def insertInStateBar(msg, tag):
+    state.configure(state='normal')
+    state.insert('end', msg, tag)
+    state.configure(state='disabled')
 
 
 def buttonDown(button):
@@ -153,7 +163,7 @@ def updateSavePath():
 
 def updateDivSize():
     global divSize
-    temp = str(chooseDivSize.get())
+    temp = str(chooseDivSize.get())  # only take first 100 characters if more than 100 were inputted
     if temp.isdigit():
         divSize = temp
     else:
@@ -168,13 +178,13 @@ def updateProgress():
     if not fract.mustStop:
         if fract.dividingImage:
             clearStateBar()
-            state.insert('end', "Dividing Image...")
+            insertInStateBar('Dividing Image...', 'Default')
         elif fract.fractalizing:
             clearStateBar()
-            state.insert('end', "Fractalizing...")
+            insertInStateBar('Fractalizing...', 'Default')
         elif fract.finishingUp:
             clearStateBar()
-            state.insert('end', "Finishing Up...")
+            insertInStateBar('Finishing Up...', 'Default')
 
 
 def paramsAreValid():
@@ -186,12 +196,12 @@ def paramsAreValid():
 
     if file is None or not os.path.exists(file):
         clearStateBar()
-        state.insert('end', 'Invalid File Path!', 'Problem')
+        insertInStateBar('Invalid File Path!', 'Problem')
         return False
 
     if save is None or not os.path.exists(save):
         clearStateBar()
-        state.insert('end', 'Invalid Save Path!', 'Problem')
+        insertInStateBar('Invalid Save Path!', 'Problem')
         return False
 
     # check that the division size actually makes sense for this particular image
@@ -200,7 +210,7 @@ def paramsAreValid():
     # div size must be smaller than the smallest dimension (width or height) of the picture to be valid
     if int(divSize) > min(imAr.shape[1], imAr.shape[0]):
         clearStateBar()
-        state.insert('end', 'Div Size>Image Size!', 'Problem')
+        insertInStateBar('Div Size>Image Size!', 'Problem')
         return False
 
     return True
@@ -211,17 +221,17 @@ def stop():
         buttonDown(stopButton)
         fract.mustStop = True
         clearStateBar()
-        state.insert('end', 'Stopping...')
+        insertInStateBar('Stopping...', 'Default')
     else:
         clearStateBar()
-        state.insert('end', 'Nothing to Stop.')
+        insertInStateBar('Nothing to Stop.', 'Default')
 
 
 def startFractalize():
     clearStateBar()
     buttonDown(fractButton)
 
-    state.insert('end', "Starting Process...")
+    insertInStateBar("Starting Process...", "Default")
 
     # check to make sure every input makes sense to prevent fractalizing errors
     if not paramsAreValid():
@@ -254,20 +264,20 @@ def startFractalize():
             clearStateBar()
             return
 
-    fract.fractalize(im, divSize, save, newImgName.get())
+    fract.fractalize(im, divSize, save, newImgName.get()[:100])  # only use the first 100 letters to name the file
 
     # if the program was told to stop during the process
     if fract.mustStop:
         fract.setPercentDone(0)
         updateProgress()
         clearStateBar()
-        state.insert('end', "Cancelled by User.")
+        insertInStateBar("Cancelled by User.", "Default")
         root.after(3000, buttonUp, (stopButton))
     # otherwise, it completed the process
     else:
         updateProgress()
         clearStateBar()
-        state.insert('end', "Done!", 'Complete')
+        insertInStateBar("Done!", 'Complete')
 
     # Regardless, wait a bit and then clear everything
     root.after(3000, fract.setPercentDone, (0))
@@ -287,7 +297,6 @@ fractButton.place(relx=.4, rely=.75, anchor=CENTER)
 stopButton.place(relx=.6, rely=.75, anchor=CENTER)
 fileChooseButton.place(relx=.85, rely=.2, anchor=CENTER)
 saveChooseButton.place(relx=.85, rely=.4, anchor=CENTER)
-
 
 root.after(2000, updateProgress)  # update progress bar every 2 seconds
 root.mainloop()

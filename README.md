@@ -23,12 +23,16 @@ Works on Windows. Image Fractalizer also can run on Linux systems (tested on Ubu
 due to possible issues with displaying .ico files on Linux.
 
 To Use:
-- Clone this repo
+- Clone this repo.
 - Make sure you have Python, Pillow (ver. 7.2.0), and NumPy (ver. 1.19.0) installed. If you don't have Pillow or Numpy,
-you can install them via the requirements file with pip - `pip install -r requirements.txt` 
-- Go to the directory in terminal and run `python gui.py`
+you can install them via the requirements file with pip - `pip install -r requirements.txt`.
+- Go to the directory in terminal and run `python gui.py`.
 - Follow the prompts on the GUI and have fun!
   -  Note: If you started a fractalization and want to stop it, pressed the "Stop!" button.
+  -  Also Note: On an extremely small percent of images (only has been found to happen with 2 images out of the hundreds
+   tested), certain metadata in the image seems to cause PIL to read the dimensions of the image incorrectly. Of the 
+   times it has happened, the result was that the the fractalized image was rotated 90 degrees counterclockwise. If this
+   happens, simply rotate the fractalized image to the correct orientation in any photo editing software.
 - To close the application, simply close the application with the close button as you would with any other application.
 
 
@@ -76,4 +80,3 @@ sized images and division sizes. As as safeguard to block against extremely long
 from the inputted image's dimensions and the inputted division size to a threshold value. Using the result of this comparison, the program will tell you if 
 the image will take a long time to fractalize, and then it will offer to resize it for you so that it can run faster if you so choose. In addition, the GUI 
 does have a progress bar, so you are able to see the rate at which the fractalizer is running on your hardware.
-

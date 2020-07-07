@@ -13,9 +13,9 @@ maxThreshold = 400000  # good value found through trial and error
 
 def getPercentDone():
     global percentDone
-    ''' To protect against unwanted behavior when tampering with code - will always be true as long as percentDone was 
-    changed through setPercentDone, which makes sure the inputted percent was valid. Exception should never be thrown
-    under normal circumstances '''
+    ''' Conditional used to protect against unwanted behavior when tampering with code - will always be true as long as
+     percentDone was changed through setPercentDone, which makes sure the inputted percent was valid. Exception should 
+     never be thrown under normal circumstances '''
     if 0 <= percentDone <= 100:
         return percentDone
     else:
@@ -89,7 +89,7 @@ def getAvgRGB(inputSquare):
     return (r, g, b)
 
 
-'''create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of
+'''Create the list of mini squares (which will be filled with the approximated pixels) with the appropriate number of
    indexes'''
 def createSquareList(imAr, num):
     squareList = []
@@ -100,7 +100,7 @@ def createSquareList(imAr, num):
     return squareList
 
 
-''' traverses the image in standard format, skipping every n pixels. for each (x, y) pair, stop the outer two for loops
+''' Traverses the image in standard format, skipping every n pixels. for each (x, y) pair, stop the outer two for loops
     We examine the smaller n x n square consisting of (x -> x + n, y -> y + n) (which is n^2 number of pixels) and 
     find the average rgb value of that set of pixels. Then push that average into the approximated pixel square list '''
 def getNewPixelAr(im, num):
