@@ -32,7 +32,7 @@ To Use:
 you can install them via the requirements file with pip - `pip install -r requirements.txt`.
 - Go to the directory in terminal and run `python gui.py`.
 - Follow the prompts on the GUI and have fun!
-  -  Note: If you started a fractalization and want to stop it, pressed the "Stop!" button.
+  -  Note: If you started a fractalization and want to stop it, press the "Stop!" button.
   -  Also Note: On an extremely small percent of images (only has been found to happen with 2 images out of the hundreds
    tested), certain metadata in the image seems to cause PIL to read the dimensions of the image incorrectly. Of the 
    times it has happened, the result was that the the fractalized image was rotated 90 degrees counterclockwise. If this
